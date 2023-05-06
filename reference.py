@@ -45,7 +45,7 @@ class TinderBot():
     
     def facebook_login(self):
         # find and click FB login button
-        login_with_facebook = self.driver.find_element(By.XPATH, '//*[@id="s-2135792338"]/main/div/div/div[1]/div/div/div[3]/span/div[2]/button/div[2]/div[2]')
+        login_with_facebook = self.driver.find_element(By.XPATH, '//*[@id="q-674212339"]/main/div/div/div[1]/div/div/div[3]/span/div[2]/button')
         login_with_facebook.click()
 
         
