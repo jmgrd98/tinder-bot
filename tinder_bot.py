@@ -14,12 +14,14 @@ class TinderBot():
     def login(self):
         self.driver.get('https://tinder.com')
 
-        cookies_accept_button = self.driver.find_element(By.XPATH, '//*[@id="s-407411262"]')
+        time.sleep
+
+        cookies_accept_button = self.driver.find_element(By.XPATH, '/html/body/div[1]/div/div[2]/div/div/div[1]/div[1]/button')
         cookies_accept_button.click()
 
         time.sleep(3)
 
-        login_btn = self.driver.find_element(By.XPATH, '//*[@id="s-407411262"]/div/div[1]/div/main/div[1]/div/div/div/div/header/div/div[2]/div[2]/a/div[2]/div[2]')
+        login_btn = self.driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/main/div[1]/div/div/div/div/header/div/div[2]/div[2]/a')
         login_btn.click()
 
         time.sleep(3)
@@ -29,12 +31,12 @@ class TinderBot():
         time.sleep(3)
 
         try:
-            allow_location_button = self.driver.find_element(By.XPATH, '//*[@id="s-2135792338"]/main/div/div/div/div[3]/button[1]/div[2]/div[2]')
+            allow_location_button = self.driver.find_element(By.XPATH, '/html/body/div[2]/main/div/div/div/div[3]/button[1]')
             allow_location_button.click()
         except:
             print('no location popup')
 
-        time.sleep(3)
+        time.sleep(300)
 
         try:
             use_tinder_button = self.driver.find_element(By.XPATH, '//*[@id="s-2135792338"]/main/div/div/div/div[3]/button[2]/div[2]/div[2]')
@@ -53,7 +55,7 @@ class TinderBot():
 
     
     def fb_login(self):
-        fb_btn = self.driver.find_element(By.XPATH, '//*[@id="s-2135792338"]/main/div/div/div[1]/div/div/div[3]/span/div[2]/button/div[2]/div[2]')
+        fb_btn = self.driver.find_element(By.XPATH, '/html/body/div[2]/main/div/div/div[1]/div/div/div[2]/div[2]/span/div[2]/button')
         fb_btn.click()
 
         time.sleep(3)
