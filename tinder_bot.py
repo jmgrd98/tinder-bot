@@ -14,7 +14,7 @@ class TinderBot():
     def login(self):
         self.driver.get('https://tinder.com')
 
-        time.sleep
+        time.sleep(3)
 
         cookies_accept_button = self.driver.find_element(By.XPATH, '/html/body/div[1]/div/div[2]/div/div/div[1]/div[1]/button')
         cookies_accept_button.click()
@@ -36,23 +36,23 @@ class TinderBot():
         except:
             print('no location popup')
 
-        time.sleep(300)
+        time.sleep(3)
 
         try:
-            use_tinder_button = self.driver.find_element(By.XPATH, '//*[@id="s-2135792338"]/main/div/div/div/div[3]/button[2]/div[2]/div[2]')
+            use_tinder_button = self.driver.find_element(By.XPATH, '/html/body/div[2]/main/div/div/div/div[3]/button[1]')
             use_tinder_button.click()
-
         except:
             print('no tinder popup')
 
+        time.sleep(3)
+
         try:
-            notifications_button = self.driver.find_element(By.XPATH, '//*[@id="s-2135792338"]/main/div/div/div/div[3]/button[2]/div[2]/div[2]')
+            notifications_button = self.driver.find_element(By.XPATH, '/html/body/div[2]/main/div/div/div/div[3]/button[1]')
             notifications_button.click()
         except:
             print('no notification popup')
 
-        time.sleep(10)
-
+        time.sleep(3)
     
     def fb_login(self):
         fb_btn = self.driver.find_element(By.XPATH, '/html/body/div[2]/main/div/div/div[1]/div/div/div[2]/div[2]/span/div[2]/button')
@@ -75,7 +75,24 @@ class TinderBot():
 
         self.driver.switch_to.window(base_window)
 
+    def right_swipe(self):
+        doc = self.driver.find_element(By.XPATH, '//*[@id="Tinder"]/body')
+        doc.send_keys(Keys.ARROW_RIGHT)
+    def left_swipe(self):
+        doc = self.driver.find_element(By.XPATH, '//*[@id="Tinder"]/body')
+        doc.send_keys(Keys.ARROW_LEFT)
 
+    def auto_swipe(self):
+        while True:
+            time.sleep(2)
+            try:
+                self.right_swipe()
+            except:
+                self.close_match()
+
+    def close_match(self):
+        match_popup = self.driver.find_element(By.XPATH, '//*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a')
+        match_popup.click()
 
 
 bot = TinderBot()
