@@ -1,99 +1,99 @@
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-import time
-import random
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from login_details import email, password
+from selenium.webdriver.chrome.service import Service
+from time import sleep
+from selenium.common.exceptions import TimeoutException
 
 class TinderBot():
     def __init__(self):
-        self.driver = webdriver.Chrome()
+        s=Service(ChromeDriverManager().install())
+        self.driver = webdriver.Chrome(service=s)
+        self.wait = WebDriverWait(self.driver, 10)
+
+    def click_when_present(self, xpath, timeout=10):
+        element = WebDriverWait(self.driver, timeout).until(
+            EC.presence_of_element_located((By.XPATH, xpath))
+        )
+        element = self.driver.find_element(By.XPATH, xpath)
+        element.click()
 
     def login(self):
         self.driver.get('https://tinder.com')
 
-        time.sleep(3)
-
-        cookies_accept_button = self.driver.find_element(By.XPATH, '/html/body/div[1]/div/div[2]/div/div/div[1]/div[1]/button')
-        cookies_accept_button.click()
-
-        time.sleep(3)
-
-        login_btn = self.driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/main/div[1]/div/div/div/div/header/div/div[2]/div[2]/a')
-        login_btn.click()
-
-        time.sleep(3)
-
+        # Accept Cookies
+        self.click_when_present('/html/body/div[1]/div/div[2]/div/div/div[1]/div[1]/button')
+        self.click_when_present('/html/body/div[1]/div/div[1]/div/main/div[1]/div/div/div/div/header/div/div[2]/div[2]/a')
         self.fb_login()
- 
-        time.sleep(3)
 
-        try:
-            allow_location_button = self.driver.find_element(By.XPATH, '/html/body/div[2]/main/div/div/div/div[3]/button[1]')
-            allow_location_button.click()
-        except:
-            print('no location popup')
-
-        time.sleep(3)
-
-        try:
-            use_tinder_button = self.driver.find_element(By.XPATH, '/html/body/div[2]/main/div/div/div/div[3]/button[1]')
-            use_tinder_button.click()
-        except:
-            print('no tinder popup')
-
-        time.sleep(3)
-
-        try:
-            notifications_button = self.driver.find_element(By.XPATH, '/html/body/div[2]/main/div/div/div/div[3]/button[1]')
-            notifications_button.click()
-        except:
-            print('no notification popup')
-
-        time.sleep(3)
-    
-    def fb_login(self):
-        fb_btn = self.driver.find_element(By.XPATH, '/html/body/div[2]/main/div/div/div[1]/div/div/div[2]/div[2]/span/div[2]/button')
-        fb_btn.click()
-
-        time.sleep(3)
-
-        base_window = self.driver.window_handles[0]
-        fb_popup_window = self.driver.window_handles[1]
-        self.driver.switch_to.window(fb_popup_window)
-
-        email_in = self.driver.find_element(By.XPATH, '//*[@id="email"]')
-        email_in.send_keys(email)
-
-        pw_in = self.driver.find_element(By.XPATH, '//*[@id="pass"]')
-        pw_in.send_keys(password)
-
-        fb_login_btn = self.driver.find_element(By.XPATH, '//*[@id="loginbutton"]')
-        fb_login_btn.click()
-
-        self.driver.switch_to.window(base_window)
-
-    def right_swipe(self):
-        doc = self.driver.find_element(By.XPATH, '//*[@id="Tinder"]/body')
-        doc.send_keys(Keys.ARROW_RIGHT)
-    def left_swipe(self):
-        doc = self.driver.find_element(By.XPATH, '//*[@id="Tinder"]/body')
-        doc.send_keys(Keys.ARROW_LEFT)
-
-    def auto_swipe(self):
-        while True:
-            time.sleep(2)
+        # Handle post-login popups
+        popups_xpath = [
+            '/html/body/div[2]/main/div/div/div/div[3]/button[1]',
+            '/html/body/div[2]/main/div/div/div/div[3]/button[1]',
+            '/html/body/div[2]/main/div/div/div/div[3]/button[1]'
+        ]
+        for popup in popups_xpath:
             try:
-                self.right_swipe()
+                self.click_when_present(popup)
             except:
-                self.close_match()
+                print(f"No popup for {popup}")
+
+    def fb_login(self):
+        self.click_when_present('/html/body/div[2]/main/div/div/div[1]/div/div/div[2]/div[2]/span/div[2]/button')
+        fb_popup_window = self.wait.until(EC.number_of_windows_to_be(2))
+        self.driver.switch_to.window(self.driver.window_handles[1])
+
+        self.driver.find_element(By.XPATH, '//*[@id="email"]').send_keys(email)
+        self.driver.find_element(By.XPATH, '//*[@id="pass"]').send_keys(password)
+        self.driver.find_element(By.XPATH, '//*[@id="loginbutton"]').click()
+
+        self.driver.switch_to.window(self.driver.window_handles[0])
+
+    def swipe(self, direction):
+        body = self.driver.find_element(By.XPATH, '//*[@id="Tinder"]/body')
+        if direction == 'right':
+            body.send_keys(Keys.ARROW_RIGHT)
+        elif direction == 'left':
+            body.send_keys(Keys.ARROW_LEFT)
+
+    # def wait_for_next_profile(self):
+    #     try:
+    #         WebDriverWait(self.driver, 10).until(
+    #             EC.presence_of_element_located((By.XPATH, 'SOME XPATH THAT INDICATES A NEW PROFILE'))
+    #         )
+    #     except TimeoutException:
+    #         print("Timeout waiting for next profile.")
+    #         return False
+    #     return True
+
+    def auto_swipe(self, swipe_direction='right'):
+        while True:
+            try:
+                self.swipe(swipe_direction)
+                
+                # Wait for the new profile to load
+                if not self.wait_for_next_profile():
+                    print("Failed to load next profile, retrying...")
+                    continue
+                
+            except TimeoutException:
+                print("Timeout Exception Occurred")
+                try:
+                    self.close_match()  # only close the match if there is one
+                except TimeoutException:
+                    print("No match modal to close")
+                continue  # continue to the next iteration even if there's an error
+            except Exception as e:
+                print(f"Other exception: {e}")
 
     def close_match(self):
-        match_popup = self.driver.find_element(By.XPATH, '//*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a')
-        match_popup.click()
+        self.click_when_present('//*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a')
 
-
-bot = TinderBot()
-bot.login()
+if __name__ == '__main__':
+    bot = TinderBot()
+    bot.login()
+    bot.auto_swipe('right')
