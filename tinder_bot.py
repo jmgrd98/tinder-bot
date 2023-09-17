@@ -100,13 +100,15 @@ class TinderBot():
             message_input = self.wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div[1]/div/div/main/div/div[2]/form/textarea')))
             message_input.click()
             sleep(3)
+            for char in message:
+                message_input.send_keys(char)
+                sleep(0.1)
             message_input.send_keys(message)
-            
-            # Press enter to send or find the send button and click it
             message_input.send_keys(Keys.RETURN)
             
         except TimeoutException:
             print(f"Failed to send message to {match_name}")
+            print(TimeoutException)
 
     def close_match(self):
         self.click_when_present('//*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a')
