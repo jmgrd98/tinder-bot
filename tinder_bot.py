@@ -90,10 +90,32 @@ class TinderBot():
             except Exception as e:
                 print(f"Other exception: {e}")
 
+    def send_message_to_match(self, match_name, message):
+        try:
+            match_xpath = f"//span[text()='{match_name}']"
+            match_elem = self.wait.until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div/div[1]/div/aside/nav[2]/div/div/div/div[3]/div[1]/ul[1]/li[3]/a")))
+            match_elem.click()
+
+            # Locate the message input box and send the message
+            message_input = self.wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div[1]/div/div/main/div/div[2]/form/textarea')))
+            message_input.click()
+            sleep(3)
+            message_input.send_keys(message)
+            
+            # Press enter to send or find the send button and click it
+            message_input.send_keys(Keys.RETURN)
+            
+        except TimeoutException:
+            print(f"Failed to send message to {match_name}")
+
     def close_match(self):
         self.click_when_present('//*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a')
+
+    
 
 if __name__ == '__main__':
     bot = TinderBot()
     bot.login()
-    bot.auto_swipe('right')
+    bot.send_message_to_match("Mariana", "Oi, tudo bem?")
+    # bot.auto_swipe('right')
+    
